@@ -1,6 +1,3 @@
-[submodule "external/glfw"]
-	path = external/glfw
-	url = https://github.com/glfw/glfw
 [submodule "external/imgui"]
 	path = external/imgui
 	url = https://github.com/ocornut/imgui/
@@ -12,4 +9,4 @@
 	url = git@github.com:g-truc/glm.git
 [submodule "external/SDL"]
 	path = external/SDL
-	url = https://github.com/libsdl-org/SDL
+	url = git@github.com:libsdl-org/SDL.git
