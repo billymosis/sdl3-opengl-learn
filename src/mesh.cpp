@@ -1,19 +1,22 @@
 #include "mesh.hpp"
 
-Mesh::Mesh(const std::vector<VertexData> &data) {
+Mesh::Mesh(const std::vector<VertexData> &data, const std::vector<unsigned int> &newIndices) {
   this->vertexData = data;
+  this->indices = newIndices;
   this->SetupMesh();
 }
 
 Mesh::~Mesh() { this->CleanupMesh(); }
 
-void Mesh::SetMeshData(const std::vector<VertexData> &newData) {
+void Mesh::SetMeshData(const std::vector<VertexData> &newData,
+                       const std::vector<unsigned int> &newIndices) {
   this->CleanupMesh();
 
   this->vertexData.clear();
   this->indices.clear();
 
   this->vertexData = newData;
+  this->indices = newIndices;
 
   this->SetupMesh();
 }
@@ -33,6 +36,10 @@ void Mesh::SetupMesh() {
   glNamedBufferData(VBO, vertexData.size() * sizeof(VertexData),
                     vertexData.data(), GL_STATIC_DRAW);
   // TODO: INDICES
+
+  glNamedBufferData(EBO, indices.size() * sizeof(GLuint), indices.data(),
+                    GL_STATIC_DRAW);
+  glVertexArrayElementBuffer(VAO, EBO);
 
   GLuint vaoBindingPoint = 0;
   glEnableVertexArrayAttrib(VAO, aPos);

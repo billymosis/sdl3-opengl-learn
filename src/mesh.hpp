@@ -1,3 +1,5 @@
+#pragma once
+
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <vector>
@@ -25,11 +27,13 @@ protected:
 
 public:
   Mesh() = default;
-  Mesh(const std::vector<VertexData> &data);
+  Mesh(const std::vector<VertexData> &data,
+       const std::vector<unsigned int> &newIndices);
 
   virtual ~Mesh();
 
-  void SetMeshData(const std::vector<VertexData> &newData);
+  void SetMeshData(const std::vector<VertexData> &newData,
+                   const std::vector<unsigned int> &newIndices);
 
   void SetupDepthTestMode() const;
   void SetupPolygonMode() const;
