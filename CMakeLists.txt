@@ -1,6 +1,22 @@
 cmake_minimum_required(VERSION 3.5)
 project(learn_gl)
 
+# Disable compiler extensions, turn off the compability with c99 (polyfill)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Set warning level for GCC/Clang
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+# Set warning level for MSVC
+if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    add_compile_options(/W4)
+endif()
+
+# Set cpp versions
+set (CMAKE_CXX_STANDARD 17)
+
 # Include openGL
 find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIRS})

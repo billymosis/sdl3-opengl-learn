@@ -1,4 +1,5 @@
 #include "helper.hpp"
+#include "mesh.hpp"
 
 void GenerateTangentsBitangents(std::vector<VertexData> &vertexData,
                                 const std::vector<unsigned int> &indices) {
@@ -29,7 +30,7 @@ void GenerateTangentsBitangents(std::vector<VertexData> &vertexData,
   }
 }
 
-void GenerateCube(const std::shared_ptr<Mesh> &targetMesh) {
+void GenerateCube(Mesh *targetMesh) {
   std::vector<VertexData> vertexData;
   std::vector<unsigned int> indices;
 

@@ -41,8 +41,8 @@ int main(int argc, char *argv[]) {
   bool show_demo_window = true;
   bool show_another_window = false;
   ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-  const std::shared_ptr<Mesh> m = std::make_shared<Mesh>();
-  GenerateCube(m);
+  auto m = std::make_unique<Mesh>();
+  GenerateCube(m.get());
 
   Shader cube("../shaders/general.vert", "../shaders/general.frag");
   cube.use();
@@ -66,7 +66,6 @@ int main(int argc, char *argv[]) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
       debug.Event(&event);
-      std::cout << event.key.scancode << std::endl;
       switch (event.type) {
       case SDL_EVENT_QUIT:
         done = true;
@@ -75,7 +74,7 @@ int main(int argc, char *argv[]) {
         SDL_PumpEvents();
         if (event.button.button == SDL_BUTTON_LEFT) {
           enableMouse = !enableMouse;
-         SDL_SetWindowRelativeMouseMode(window.window, enableMouse);
+          SDL_SetWindowRelativeMouseMode(window.window, enableMouse);
         }
         break;
       case SDL_EVENT_KEY_DOWN:
