@@ -85,10 +85,11 @@ public:
   void CameraMove(int forward, int right, float deltaTime) {
 
     float length = sqrt(forward * forward + right * right);
-    
-    float normalizedVelocityModifier = 1.0f;
+
+    auto speedMultiplier = 20.0f;
+    float normalizedVelocityModifier = 1.0f * speedMultiplier;
     if (length > 0) {
-        normalizedVelocityModifier = 1.0f / length;
+      normalizedVelocityModifier = 1.0f / length * speedMultiplier;
     }
 
     if (forward == 1) {

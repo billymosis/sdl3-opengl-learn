@@ -34,6 +34,13 @@ add_subdirectory(external/SDL EXCLUDE_FROM_ALL)
 set(GLM_TEST_ENABLE OFF CACHE BOOL "GLM no test")
 add_subdirectory(external/glm)
 
+# Include assimp
+set(ASSIMP_WARNINGS_AS_ERRORS OFF CACHE BOOL "Disable Assimp warnings as errors")
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build Assimp as a static library")
+set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "Disable Assimp tools")
+set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "Disable Assimp tests")
+add_subdirectory(external/assimp)
+
 # Add GLAD
 include_directories("${PROJECT_SOURCE_DIR}/external/glad/include")
 set(GLAD_SOURCES "${PROJECT_SOURCE_DIR}/external/glad/src/glad.c")
@@ -59,4 +66,4 @@ file(GLOB PROJECT_SOURCES src/*.cpp src/*.hpp)
 add_executable(learn_gl ${PROJECT_SOURCES} ${GLAD_SOURCES} ${IMGUI_SOURCES})
 
 # Link SDL3 to the executable
-target_link_libraries(learn_gl PRIVATE ${OPENGL_LIBRARIES} glm SDL3::SDL3)
+target_link_libraries(learn_gl PRIVATE SDL3::SDL3 glm assimp ${OPENGL_LIBRARIES})
