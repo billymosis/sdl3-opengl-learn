@@ -3,7 +3,7 @@
 
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"
-#include "mesh.hpp"
+#include "custom_geometry.hpp"
 #include <algorithm>
 #include <glad/glad.h>
 
@@ -26,7 +26,7 @@ public:
   vector<Texture>
       textures_loaded; // stores all the textures loaded so far, optimization to
                        // make sure textures aren't loaded more than once.
-  vector<Mesh> meshes;
+  vector<CustomGeometry> meshes;
   string directory;
   string type;
   bool gammaCorrection;
@@ -37,7 +37,7 @@ public:
     loadModel(path);
   }
 
-  Model(Mesh mesh, bool gamma = false) : gammaCorrection(gamma) {
+  Model(CustomGeometry mesh, bool gamma = false) : gammaCorrection(gamma) {
     type = "CUBE-MESH";
     this->meshes = {mesh};
   }
@@ -92,7 +92,7 @@ private:
     }
   }
 
-  Mesh processMesh(aiMesh *mesh, const aiScene *scene) {
+  CustomGeometry processMesh(aiMesh *mesh, const aiScene *scene) {
     // data to fill
     vector<Vertex> vertices;
     vector<unsigned int> indices;
@@ -177,7 +177,7 @@ private:
     textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
     // return a mesh object created from the extracted mesh data
-    return Mesh(vertices, indices, textures);
+    return CustomGeometry(vertices, indices, textures);
   }
 
   // checks all material textures of a given type and loads the textures if

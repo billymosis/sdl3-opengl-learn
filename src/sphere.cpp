@@ -4,6 +4,7 @@
 Sphere::Sphere(float radius, int sectors, int stacks)
     : radius(radius), sectors(sectors), stacks(stacks) {
   generateGeometry();
+  setupMesh();
 }
 
 void Sphere::generateGeometry() {
@@ -59,3 +60,5 @@ void Sphere::generateGeometry() {
     }
   }
 }
+
+std::string Sphere::getName() { return "SPHERE"; }

@@ -1,15 +1,16 @@
 #include "app.hpp"
 #include "cube.hpp"
 #include "debug.hpp"
-#include "mesh.hpp"
+#include "glm/fwd.hpp"
+#include "node.hpp"
 #include "shader.hpp"
 #include "sphere.hpp"
 #include "window.hpp"
 
 #include "camera.hpp"
-#include "entity.hpp"
 #include "model.hpp"
 #include "shader.hpp"
+#include <memory>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -29,44 +30,19 @@ App::App() {
   ourShader.use();
 
   Cube c;
-  Cube s(2.0f, 0.5f);
-  Model m(c);
-  Model m2(s);
-  Entity wak(m);
-
-  const float scalex = 10.0f;
-  wak.transform.setLocalScale({scalex, scalex, scalex});
-  wak.addChild(m);
-  wak.addChild(m2);
-  wak.updateSelfAndChild();
-
-  // load entities
-  // -----------
-  Model model = Model("../assets/planet.obj");
-  Entity ourEntity(model);
-  ourEntity.transform.setLocalPosition({10, 0, 0});
-  const float scale = 0.75;
-  ourEntity.transform.setLocalScale({scale, scale, scale});
-
-  {
-    Entity *lastEntity = &ourEntity;
-
-    for (unsigned int i = 0; i < 10; ++i) {
-      lastEntity->addChild(model);
-      lastEntity = lastEntity->children.back().get();
-
-      // Set transform values
-      lastEntity->transform.setLocalPosition({10, 0, 0});
-      lastEntity->transform.setLocalScale({scale, scale, scale});
-    }
-  }
-
-  ourEntity.updateSelfAndChild();
-
-  // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
+  Cube b;
+  Sphere s;
+  auto root = std::make_shared<Node>(c);
+  auto ball = std::make_shared<Node>(s);
+  auto c2 = std::make_shared<Node>(b);
+  root.get()->add(ball);
+  ball->setPos(glm::vec3(2.0f, 2.0f, 2.0f));
+  ball->add(c2);
+  c2->setPos(glm::vec3(1.0f, 0.0f, 1.0f));
+  root.get()->updateWorldTransform();
   Uint32 previousTicks = SDL_GetTicks();
 
+  float rotation = 0.0;
   // Main loop
   bool done = false;
   while (!done) {
@@ -152,27 +128,32 @@ App::App() {
     glm::mat4 view = camera->GetViewMatrix();
     ourShader.setMat4("projection", projection);
     ourShader.setMat4("view", view);
+    rotation += glm::radians(180.0f) * deltaTime;
+    root.get()->setRot(glm::vec3(0, rotation, 0));
+    root.get()->updateWorldTransform();
+    root.get()->draw(ourShader);
 
     // draw our scene graph
-    Entity *lastEntity = &ourEntity;
-    while (lastEntity->children.size()) {
-      ourShader.setMat4("model", lastEntity->transform.getModelMatrix());
-      lastEntity->pModel->Draw(ourShader);
-      lastEntity = lastEntity->children.back().get();
-    }
-
-    ourEntity.transform.setLocalRotation(
-        {0.f, ourEntity.transform.getLocalRotation().y + 20 * deltaTime, 0.f});
-    ourEntity.updateSelfAndChild();
-
-    Entity *l = &wak;
-    while (l->children.size()) {
-      ourShader.setMat4("model", l->transform.getModelMatrix());
-      l->pModel->Draw(ourShader);
-      l = l->children.back().get();
-    }
-
-    wak.updateSelfAndChild();
+    // Entity *lastEntity = &ourEntity;
+    // while (lastEntity->children.size()) {
+    //   ourShader.setMat4("model", lastEntity->transform.getModelMatrix());
+    //   lastEntity->pModel->Draw(ourShader);
+    //   lastEntity = lastEntity->children.back().get();
+    // }
+    //
+    // ourEntity.transform.setLocalRotation(
+    //     {0.f, ourEntity.transform.getLocalRotation().y + 20 * deltaTime,
+    //     0.f});
+    // ourEntity.updateSelfAndChild();
+    //
+    // Entity *l = &wak;
+    // while (l->children.size()) {
+    //   ourShader.setMat4("model", l->transform.getModelMatrix());
+    //   l->pModel->Draw(ourShader);
+    //   l = l->children.back().get();
+    // }
+    //
+    // wak.updateSelfAndChild();
 
     debug.Window1();
 

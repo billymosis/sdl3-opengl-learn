@@ -1,7 +1,7 @@
 #include "shape.hpp"
 
-void Shape::Draw(Shader &shader) {
-// bind appropriate textures
+void Geometry::Draw(Shader &shader) {
+  // bind appropriate textures
   unsigned int diffuseNr = 1;
   unsigned int specularNr = 1;
   unsigned int normalNr = 1;
@@ -37,7 +37,7 @@ void Shape::Draw(Shader &shader) {
   glActiveTexture(GL_TEXTURE0);
 }
 
-void Shape::setupMesh() {
+void Geometry::setupMesh() {
   // create buffers/arrays
   glGenVertexArrays(1, &VAO);
   glGenBuffers(1, &VBO);
@@ -88,3 +88,5 @@ void Shape::setupMesh() {
                         (void *)offsetof(Vertex, m_Weights));
   glBindVertexArray(0);
 }
+
+std::string Geometry::getName() { return "SHAPE"; }

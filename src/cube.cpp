@@ -3,6 +3,7 @@
 Cube::Cube(float width, float height, float depth)
     : width(width), height(height), depth(depth) {
   generateGeometry();
+  setupMesh();
 }
 
 void Cube::generateGeometry() {
@@ -50,3 +51,5 @@ void Cube::generateGeometry() {
              // Bottom face
              0, 1, 5, 0, 5, 4};
 }
+
+std::string Cube::getName() { return "CUBE"; }

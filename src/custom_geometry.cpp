@@ -1,7 +1,8 @@
-#include "mesh.hpp"
+#include "custom_geometry.hpp"
 
-Mesh::Mesh(vector<Vertex> vertices, vector<unsigned int> indices,
-           vector<Texture> textures) {
+CustomGeometry::CustomGeometry(vector<Vertex> vertices,
+                               vector<unsigned int> indices,
+                               vector<Texture> textures) {
   this->vertices = vertices;
   this->indices = indices;
   this->textures = textures;
@@ -11,11 +12,11 @@ Mesh::Mesh(vector<Vertex> vertices, vector<unsigned int> indices,
   setupMesh();
 }
 
-Mesh::Mesh(const Shape &shape) {
+CustomGeometry::CustomGeometry(const Geometry &shape) {
   this->vertices = shape.vertices;
   this->indices = shape.indices;
   this->textures = shape.textures;
   setupMesh();
 }
 
-Mesh::Mesh() {}
+CustomGeometry::CustomGeometry() {}
