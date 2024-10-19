@@ -1,7 +1,9 @@
 #include "app.hpp"
+#include "cube.hpp"
 #include "debug.hpp"
 #include "mesh.hpp"
 #include "shader.hpp"
+#include "sphere.hpp"
 #include "window.hpp"
 
 #include "camera.hpp"
@@ -26,13 +28,16 @@ App::App() {
                    "../shaders/model_loading.frag");
   ourShader.use();
 
-  Cube c{};
+  Cube c;
+  Cube s(2.0f, 0.5f);
   Model m(c);
+  Model m2(s);
   Entity wak(m);
 
   const float scalex = 10.0f;
   wak.transform.setLocalScale({scalex, scalex, scalex});
   wak.addChild(m);
+  wak.addChild(m2);
   wak.updateSelfAndChild();
 
   // load entities

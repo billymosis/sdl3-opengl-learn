@@ -135,11 +135,11 @@ struct BoundingVolume {
   };
 };
 
-struct Sphere : public BoundingVolume {
+struct SphereVolume : public BoundingVolume {
   glm::vec3 center{0.f, 0.f, 0.f};
   float radius{0.f};
 
-  Sphere(const glm::vec3 &inCenter, float inRadius)
+  SphereVolume(const glm::vec3 &inCenter, float inRadius)
       : BoundingVolume{}, center{inCenter}, radius{inRadius} {}
 
   bool isOnOrForwardPlane(const Plane &plane) const final {
@@ -162,7 +162,7 @@ struct Sphere : public BoundingVolume {
 
     // Max scale is assuming for the diameter. So, we need the half to apply it
     // to our radius
-    Sphere globalSphere(globalCenter, radius * (maxScale * 0.5f));
+    SphereVolume globalSphere(globalCenter, radius * (maxScale * 0.5f));
 
     // Check Firstly the result that have the most chance to failure to avoid to
     // call all functions.
@@ -339,7 +339,7 @@ AABB generateAABB(const Model &model) {
   return AABB(minAABB, maxAABB);
 }
 
-Sphere generateSphereBV(const Model &model) {
+SphereVolume generateSphereBV(const Model &model) {
   glm::vec3 minAABB = glm::vec3(std::numeric_limits<float>::max());
   glm::vec3 maxAABB = glm::vec3(std::numeric_limits<float>::min());
   for (auto &&mesh : model.meshes) {
@@ -354,7 +354,7 @@ Sphere generateSphereBV(const Model &model) {
     }
   }
 
-  return Sphere((maxAABB + minAABB) * 0.5f, glm::length(minAABB - maxAABB));
+  return SphereVolume((maxAABB + minAABB) * 0.5f, glm::length(minAABB - maxAABB));
 }
 
 class Entity {
