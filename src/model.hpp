@@ -4,6 +4,7 @@
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"
 #include "mesh.hpp"
+#include <algorithm>
 #include <glad/glad.h>
 
 #include "stb_image.h"
@@ -16,8 +17,8 @@
 #include <vector>
 using namespace std;
 
-unsigned int TextureFromFile(const char *path, const string &directory,
-                             bool gamma = false);
+inline unsigned int TextureFromFile(const char *path, const string &directory,
+                                    bool gamma = false);
 
 class Model {
 public:
@@ -27,17 +28,26 @@ public:
                        // make sure textures aren't loaded more than once.
   vector<Mesh> meshes;
   string directory;
+  string type;
   bool gammaCorrection;
 
   // constructor, expects a filepath to a 3D model.
   Model(string const &path, bool gamma = false) : gammaCorrection(gamma) {
+    type = "MODEL";
     loadModel(path);
+  }
+
+  Model(Mesh mesh, bool gamma = false) : gammaCorrection(gamma) {
+    type = "CUBE-MESH";
+    this->meshes = {mesh};
   }
 
   // draws the model, and thus all its meshes
   void Draw(Shader &shader) {
-    for (unsigned int i = 0; i < meshes.size(); i++)
+    for (unsigned int i = 0; i < meshes.size(); i++) {
+      shader.setBool("has_texture", !textures_loaded.empty());
       meshes[i].Draw(shader);
+    }
   }
 
 private:
@@ -204,8 +214,8 @@ private:
   }
 };
 
-unsigned int TextureFromFile(const char *path, const string &directory,
-                             bool gamma) {
+inline unsigned int TextureFromFile(const char *path, const string &directory,
+                                    bool gamma) {
   string filename = string(path);
   filename = directory + '/' + filename;
 
@@ -221,7 +231,7 @@ unsigned int TextureFromFile(const char *path, const string &directory,
       format = GL_RED;
     else if (nrComponents == 3)
       format = GL_RGB;
-    else if (nrComponents == 4)
+    else
       format = GL_RGBA;
 
     glBindTexture(GL_TEXTURE_2D, textureID);

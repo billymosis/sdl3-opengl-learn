@@ -1,5 +1,6 @@
 #include "app.hpp"
 #include "debug.hpp"
+#include "mesh.hpp"
 #include "shader.hpp"
 #include "window.hpp"
 
@@ -24,6 +25,15 @@ App::App() {
   Shader ourShader("../shaders/model_loading.vert",
                    "../shaders/model_loading.frag");
   ourShader.use();
+
+  Cube c{};
+  Model m(c);
+  Entity wak(m);
+
+  const float scalex = 10.0f;
+  wak.transform.setLocalScale({scalex, scalex, scalex});
+  wak.addChild(m);
+  wak.updateSelfAndChild();
 
   // load entities
   // -----------
@@ -149,6 +159,15 @@ App::App() {
     ourEntity.transform.setLocalRotation(
         {0.f, ourEntity.transform.getLocalRotation().y + 20 * deltaTime, 0.f});
     ourEntity.updateSelfAndChild();
+
+    Entity *l = &wak;
+    while (l->children.size()) {
+      ourShader.setMat4("model", l->transform.getModelMatrix());
+      l->pModel->Draw(ourShader);
+      l = l->children.back().get();
+    }
+
+    wak.updateSelfAndChild();
 
     debug.Window1();
 

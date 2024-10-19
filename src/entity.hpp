@@ -3,11 +3,11 @@
 
 #include "camera.hpp"
 #include "glm/ext/matrix_transform.hpp"
+#include "model.hpp"
 #include <array>       //std::array
 #include <glm/glm.hpp> //glm::mat4
 #include <list>        //std::list
 #include <memory>      //std::unique_ptr
-#include "model.hpp"
 
 class Transform {
 protected:
