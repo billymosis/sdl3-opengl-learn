@@ -33,8 +33,29 @@ void Cube::generateGeometry() {
       {positions[6], glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
       {positions[7], glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
 
-      // More faces (left, right, top, bottom) can be added similarly with
-      // corresponding normals and texture coords
+      // Left face
+      {positions[0], glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
+      {positions[3], glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
+      {positions[7], glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f)},
+      {positions[4], glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f)},
+
+      // Right face
+      {positions[1], glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
+      {positions[2], glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
+      {positions[6], glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f)},
+      {positions[5], glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f)},
+
+      // Top face
+      {positions[3], glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
+      {positions[2], glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
+      {positions[6], glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(1.0f, 1.0f)},
+      {positions[7], glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 1.0f)},
+
+      // Bottom face
+      {positions[0], glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
+      {positions[1], glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
+      {positions[5], glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(1.0f, 1.0f)},
+      {positions[4], glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(0.0f, 1.0f)},
   };
 
   // Indices for the cube (12 triangles)
@@ -43,13 +64,13 @@ void Cube::generateGeometry() {
              // Front face
              4, 5, 6, 4, 6, 7,
              // Left face
-             0, 3, 7, 0, 7, 4,
+             8, 9, 10, 8, 10, 11,
              // Right face
-             1, 5, 6, 1, 6, 2,
+             12, 13, 14, 12, 14, 15,
              // Top face
-             3, 2, 6, 3, 6, 7,
+             16, 17, 18, 16, 18, 19,
              // Bottom face
-             0, 1, 5, 0, 5, 4};
+             20, 21, 22, 20, 22, 23};
 }
 
 std::string Cube::getName() { return "CUBE"; }

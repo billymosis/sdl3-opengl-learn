@@ -1,4 +1,5 @@
 #include "app.hpp"
+#include "SDL3/SDL_log.h"
 #include "cube.hpp"
 #include "debug.hpp"
 #include "glm/fwd.hpp"
@@ -11,9 +12,6 @@
 #include "model.hpp"
 #include "shader.hpp"
 #include <memory>
-
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 
 App::App() {
   this->camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -29,12 +27,20 @@ App::App() {
                    "../shaders/model_loading.frag");
   ourShader.use();
 
+  auto t1 = std::make_shared<Texture>();
+  t1->Load("../assets/awesomeface.png");
+  auto t2 = std::make_shared<Texture>();
+  t2->Load("../assets/container2.png");
+
+  std::cout << "1: " << t1->GetTextureID() << "\n";
+  std::cout << "2: " << t2->GetTextureID() << "\n";
   Cube c;
   Cube b;
   Sphere s;
+
   auto root = std::make_shared<Node>(c);
   auto ball = std::make_shared<Node>(s);
-  auto c2 = std::make_shared<Node>(b);
+  auto c2 = std::make_shared<Node>(b,t1);
   root.get()->add(ball);
   ball->setPos(glm::vec3(2.0f, 2.0f, 2.0f));
   ball->add(c2);
@@ -132,28 +138,6 @@ App::App() {
     root.get()->setRot(glm::vec3(0, rotation, 0));
     root.get()->updateWorldTransform();
     root.get()->draw(ourShader);
-
-    // draw our scene graph
-    // Entity *lastEntity = &ourEntity;
-    // while (lastEntity->children.size()) {
-    //   ourShader.setMat4("model", lastEntity->transform.getModelMatrix());
-    //   lastEntity->pModel->Draw(ourShader);
-    //   lastEntity = lastEntity->children.back().get();
-    // }
-    //
-    // ourEntity.transform.setLocalRotation(
-    //     {0.f, ourEntity.transform.getLocalRotation().y + 20 * deltaTime,
-    //     0.f});
-    // ourEntity.updateSelfAndChild();
-    //
-    // Entity *l = &wak;
-    // while (l->children.size()) {
-    //   ourShader.setMat4("model", l->transform.getModelMatrix());
-    //   l->pModel->Draw(ourShader);
-    //   l = l->children.back().get();
-    // }
-    //
-    // wak.updateSelfAndChild();
 
     debug.Window1();
 

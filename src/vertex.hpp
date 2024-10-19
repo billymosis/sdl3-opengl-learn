@@ -3,7 +3,6 @@
 #include "glm/fwd.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <string>
 
 #define MAX_BONE_INFLUENCE 4
 
@@ -22,10 +21,4 @@ struct Vertex {
   int m_BoneIDs[MAX_BONE_INFLUENCE] = {};
   // weights from each bone
   float m_Weights[MAX_BONE_INFLUENCE] = {};
-};
-
-struct Texture {
-  unsigned int id;
-  std::string type;
-  std::string path;
 };

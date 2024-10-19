@@ -1,6 +1,7 @@
 #pragma once
 #include "glm/fwd.hpp"
 #include "shape.hpp"
+#include "texture.hpp"
 #include <glm/gtc/quaternion.hpp>
 #include <memory>
 #include <string>
@@ -24,10 +25,11 @@ public:
   glm::mat4 worldTransform;
   glm::mat4 localTransform;
   Geometry &geometry;
+  std::shared_ptr<Texture> texture = nullptr;
 
   std::string name;
 
-  Node(Geometry &geometry);
+  Node(Geometry &geometry, std::shared_ptr<Texture> texture = nullptr);
 
   virtual ~Node();
   void add(std::shared_ptr<Node> node);

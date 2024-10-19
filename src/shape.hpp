@@ -9,7 +9,6 @@ class Geometry {
 public:
   std::vector<Vertex> vertices;
   std::vector<unsigned int> indices;
-  std::vector<Texture> textures;
   unsigned int VAO;
   void Draw(Shader &shader);
   virtual std::string getName();

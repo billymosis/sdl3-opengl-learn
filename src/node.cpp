@@ -1,3 +1,4 @@
+#include "SDL3/SDL_log.h"
 #include "glm/fwd.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 
@@ -8,7 +9,8 @@
 #include <iostream>
 #include <string>
 
-Node::Node(Geometry &geometry) : geometry(geometry) {
+Node::Node(Geometry &geometry, std::shared_ptr<Texture> texture)
+    : geometry(geometry), texture(texture) {
   this->name = geometry.getName();
   this->position = glm::vec3(0.0f);
   this->rotation = glm::vec3(0.0f);
@@ -112,9 +114,19 @@ void Node::setScale(glm::vec3 scale) {
 
 void Node::draw(Shader &shader) {
   shader.setMat4("model", this->worldTransform);
+
+  if (texture) {
+    SDL_Log("texture: %s, %s", this->name.c_str(),
+            texture->GetFileName().c_str());
+    this->texture->SetActive(shader, texture->GetTextureID());
+  } else {
+    SDL_Log("no texture: %s", this->name.c_str());
+    glBindTexture(GL_TEXTURE_2D, 0);
+  }
+
   this->geometry.Draw(shader);
+  glBindTexture(GL_TEXTURE_2D, 0);
   for (auto node : this->children) {
-    std::cout << node->name << "\n";
     node->draw(shader);
   }
 }
