@@ -1,5 +1,5 @@
 #ifndef MODEL_H
-#define MODEL_H
+#define MODEL_Hmodel
 
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"
@@ -52,7 +52,7 @@ public:
   void Draw(Shader &shader) {
     for (unsigned int i = 0; i < meshes.size(); i++) {
       shader.setBool("has_texture", !textures_loaded.empty());
-      meshes[i].Draw(shader);
+      meshes[i].Draw();
     }
   }
 
@@ -189,7 +189,7 @@ private:
   // checks all material textures of a given type and loads the textures if
   // they're not loaded yet. the required info is returned as a Texture struct.
   vector<Texturex> loadMaterialTextures(aiMaterial *mat, aiTextureType type,
-                                       string typeName) {
+                                        string typeName) {
     vector<Texturex> textures;
     for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
       aiString str;

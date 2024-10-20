@@ -4,17 +4,16 @@
 #include "debug.hpp"
 #include "glm/fwd.hpp"
 #include "node.hpp"
+#include "perspective_camera.hpp"
 #include "shader.hpp"
 #include "sphere.hpp"
 #include "window.hpp"
 
-#include "camera.hpp"
 #include "model.hpp"
 #include "shader.hpp"
 #include <memory>
 
 App::App() {
-  this->camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
   Window window(1280, 720, "Learn OpenGL Renderer");
   Debug debug(window.window, &window.gl_context);
 
@@ -32,20 +31,31 @@ App::App() {
   auto t2 = std::make_shared<Texture>();
   t2->Load("../assets/container2.png");
 
-  std::cout << "1: " << t1->GetTextureID() << "\n";
-  std::cout << "2: " << t2->GetTextureID() << "\n";
-  Cube c;
-  Cube b;
-  Sphere s;
+  auto cubeGeometry = std::make_shared<Cube>();
+  auto sphereGeometry = std::make_shared<Sphere>();
 
-  auto root = std::make_shared<Node>(c);
-  auto ball = std::make_shared<Node>(s);
-  auto c2 = std::make_shared<Node>(b,t1);
-  root.get()->add(ball);
+  auto root = std::make_shared<Node>();
+
+  auto cam = std::make_shared<PerspectiveCamera>(window);
+  cam->setPos(glm::vec3(0.0f, 0.0f, 5.0f));
+  root->add(cam);
+
+  auto cube = std::make_shared<Node>(cubeGeometry, t2);
+  root->add(cube);
+  auto ball = std::make_shared<Node>(sphereGeometry, t1);
   ball->setPos(glm::vec3(2.0f, 2.0f, 2.0f));
-  ball->add(c2);
-  c2->setPos(glm::vec3(1.0f, 0.0f, 1.0f));
-  root.get()->updateWorldTransform();
+  cube->add(ball);
+
+  auto cube2 = std::make_shared<Node>(cubeGeometry, t2);
+  cube2->setPos(glm::vec3(1.5f, 0.0f, 0.0f));
+  root->add(cube2);
+
+  auto cube3 = std::make_shared<Node>(cubeGeometry, t2);
+  cube3->setPos(glm::vec3(-1.5f, 0.0f, 0.0f));
+  root->add(cube3);
+
+  root->updateWorldTransform();
+
   Uint32 previousTicks = SDL_GetTicks();
 
   float rotation = 0.0;
@@ -59,12 +69,16 @@ App::App() {
     auto *keystate = SDL_GetKeyboardState(NULL);
 
     Uint32 buttons = SDL_GetRelativeMouseState(&mouseX, &mouseY);
-    this->MouseCallback();
+    cam->mouseMovement(mouseX, mouseY);
 
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
       debug.Event(&event);
       switch (event.type) {
+      case SDL_EVENT_MOUSE_WHEEL: {
+        cam->mouseScroll(event.wheel.y);
+        break;
+      }
       case SDL_EVENT_QUIT:
         done = true;
         break;
@@ -107,7 +121,30 @@ App::App() {
       }
     }
 
-    camera->CameraMove(forward, right, deltaTime);
+    // Movement speed
+    float speedMultiplier = 0.1f;
+    glm::vec3 direction(0.0f);
+
+    // Combine forward and right movement
+    if (forward == 1) {
+      direction += cam->getFront(); // Move forward
+    } else if (forward == -1) {
+      direction -= cam->getFront(); // Move backward
+    }
+
+    if (right == 1) {
+      direction += cam->getRight(); // Move right
+    } else if (right == -1) {
+      direction -= cam->getRight(); // Move left
+    }
+
+    // Normalize the direction vector
+    if (glm::length(direction) > 0) {
+      direction = glm::normalize(direction);
+    }
+
+    // Apply movement
+    cam->setPos(cam->getPos() + direction * speedMultiplier);
 
     if (SDL_GetWindowFlags(window.window) & SDL_WINDOW_MINIMIZED) {
       SDL_Delay(10);
@@ -128,16 +165,14 @@ App::App() {
     ourShader.use();
 
     // view/projection transformations
-    glm::mat4 projection = glm::perspective(
-        glm::radians(camera->Zoom), (float)window.width / (float)window.height,
-        0.1f, 100.0f);
-    glm::mat4 view = camera->GetViewMatrix();
-    ourShader.setMat4("projection", projection);
-    ourShader.setMat4("view", view);
+    ourShader.setMat4("projection", cam->projectionMatrix);
+    ourShader.setMat4("view", cam->viewMatrix);
+
     rotation += glm::radians(180.0f) * deltaTime;
-    root.get()->setRot(glm::vec3(0, rotation, 0));
-    root.get()->updateWorldTransform();
-    root.get()->draw(ourShader);
+    cube->setRot(glm::vec3(0, rotation, 0));
+
+    root->updateWorldTransform();
+    root->draw(ourShader);
 
     debug.Window1();
 
@@ -153,9 +188,3 @@ App::App() {
 }
 
 App::~App() {}
-
-void App::MouseCallback() {
-  if (this->enableMouse) {
-    this->camera->ProcessMouseMovement(mouseX, -mouseY);
-  }
-}

@@ -1,6 +1,6 @@
 #include "shape.hpp"
 
-void Geometry::Draw(Shader &shader) {
+void Geometry::Draw() {
   // // bind appropriate textures
   // unsigned int diffuseNr = 1;
   // unsigned int specularNr = 1;
@@ -89,4 +89,4 @@ void Geometry::setupMesh() {
   glBindVertexArray(0);
 }
 
-std::string Geometry::getName() { return "SHAPE"; }
+std::string Geometry::getName() { return "BASE_GEOMETRY"; }

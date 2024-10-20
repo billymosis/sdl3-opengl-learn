@@ -22,14 +22,18 @@ class Node : public std::enable_shared_from_this<Node> {
 public:
   std::weak_ptr<Node> parent;
   std::vector<std::shared_ptr<Node>> children;
-  glm::mat4 worldTransform;
-  glm::mat4 localTransform;
-  Geometry &geometry;
+
+  std::shared_ptr<Geometry> geometry = nullptr;
   std::shared_ptr<Texture> texture = nullptr;
 
-  std::string name;
+  glm::mat4 worldTransform;
+  glm::mat4 localTransform;
 
-  Node(Geometry &geometry, std::shared_ptr<Texture> texture = nullptr);
+  std::string name = "BASE_NODE";
+
+  Node(std::string name);
+  Node(std::shared_ptr<Geometry> geometry = nullptr,
+       std::shared_ptr<Texture> texture = nullptr);
 
   virtual ~Node();
   void add(std::shared_ptr<Node> node);

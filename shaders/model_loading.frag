@@ -8,5 +8,6 @@ uniform bool has_texture;
 
 void main()
 {
-    FragColor = texture(texture_diffuse1, TexCoords);
+    vec4 color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    FragColor = texture(texture_diffuse1, TexCoords) * color;
 }
