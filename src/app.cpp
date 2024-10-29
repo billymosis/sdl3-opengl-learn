@@ -3,6 +3,7 @@
 #include "cube.hpp"
 #include "debug.hpp"
 #include "glm/fwd.hpp"
+#include "material.hpp"
 #include "node.hpp"
 #include "perspective_camera.hpp"
 #include "shader.hpp"
@@ -21,15 +22,21 @@ App::App() {
 
   glEnable(GL_DEPTH_TEST);
 
-  // Our state
-  Shader ourShader("../shaders/model_loading.vert",
-                   "../shaders/model_loading.frag");
-  ourShader.use();
-
   auto t1 = std::make_shared<Texture>();
   t1->Load("../assets/awesomeface.png");
-  auto t2 = std::make_shared<Texture>();
-  t2->Load("../assets/container2.png");
+  auto t2 = Texture();
+  t2.Load("../assets/container2.png");
+  auto baseMaterial = std::make_shared<Material>(
+      "../shaders/model_loading.vert", "../shaders/model_loading.frag", t2);
+
+  // Clone materials with different colors
+  auto materialRed = baseMaterial->clone();
+  materialRed->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+  auto materialGreen = baseMaterial->clone();
+  materialGreen->setColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+  auto materialBlue = baseMaterial->clone();
+  materialBlue->setColor(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+
 
   auto cubeGeometry = std::make_shared<Cube>();
   auto sphereGeometry = std::make_shared<Sphere>();
@@ -40,23 +47,33 @@ App::App() {
   cam->setPos(glm::vec3(0.0f, 0.0f, 5.0f));
   root->add(cam);
 
-  auto cube = std::make_shared<Node>(cubeGeometry, t2);
+  auto cube = std::make_shared<Node>(cubeGeometry, materialRed);
   root->add(cube);
-  auto ball = std::make_shared<Node>(sphereGeometry, t1);
+  auto ball = std::make_shared<Node>(sphereGeometry, materialRed);
   ball->setPos(glm::vec3(2.0f, 2.0f, 2.0f));
   cube->add(ball);
 
-  auto cube2 = std::make_shared<Node>(cubeGeometry, t2);
+  auto cube2 = std::make_shared<Node>(cubeGeometry, materialGreen);
   cube2->setPos(glm::vec3(1.5f, 0.0f, 0.0f));
   root->add(cube2);
 
-  auto cube3 = std::make_shared<Node>(cubeGeometry, t2);
+  auto cube3 = std::make_shared<Node>(cubeGeometry, materialBlue);
   cube3->setPos(glm::vec3(-1.5f, 0.0f, 0.0f));
   root->add(cube3);
 
   root->updateWorldTransform();
 
   Uint32 previousTicks = SDL_GetTicks();
+
+  GLuint matricesUBO;
+  // Create and bind UBO for matrices
+  glGenBuffers(1, &matricesUBO);
+  glBindBuffer(GL_UNIFORM_BUFFER, matricesUBO);
+  glBufferData(GL_UNIFORM_BUFFER, sizeof(GlobalMatrices), nullptr,
+               GL_DYNAMIC_DRAW);
+  // Bind to binding point 0
+  glBindBufferBase(GL_UNIFORM_BUFFER, 0, matricesUBO);
+  root->setUBOProgram(matricesUBO);
 
   float rotation = 0.0;
   // Main loop
@@ -162,17 +179,11 @@ App::App() {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    ourShader.use();
-
-    // view/projection transformations
-    ourShader.setMat4("projection", cam->projectionMatrix);
-    ourShader.setMat4("view", cam->viewMatrix);
-
     rotation += glm::radians(180.0f) * deltaTime;
     cube->setRot(glm::vec3(0, rotation, 0));
 
     root->updateWorldTransform();
-    root->draw(ourShader);
+    root->draw(cam.get());
 
     debug.Window1();
 

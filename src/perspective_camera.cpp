@@ -1,5 +1,5 @@
 #include "perspective_camera.hpp"
-#include "SDL3/SDL_log.h"
+#include "glm/trigonometric.hpp"
 #include <glm/glm.hpp>
 
 #define _USE_MATH_DEFINES
@@ -89,22 +89,12 @@ void PerspectiveCamera::updateView() {
 }
 
 void PerspectiveCamera::mouseScroll(float yoffset) {
-  float zoomSpeed = 0.1f;
-  float minFOV = glm::radians(10.0f); // Minimum FOV in radians (most zoomed in)
-  float maxFOV =
-      glm::radians(120.0f); // Maximum FOV in radians (most zoomed out)
-  float currentFOV = 2 * atan(1.0f / zoom); // Convert zoom to FOV
+    zoom -= (float)yoffset;
+    if (zoom < 1.0f)
+        zoom = 1.0f;
+    if (zoom > 45.0f)
+        zoom = 45.0f; 
 
-  // Adjust FOV based on scroll
-  currentFOV *= (1.0f - yoffset * zoomSpeed);
-
-  // Clamp FOV to prevent flipping and overly narrow views
-  currentFOV = glm::clamp(currentFOV, minFOV, maxFOV);
-
-  // Convert FOV back to zoom factor
-  zoom = 1.0f / tan(currentFOV * 0.5f);
-
-  SDL_Log("fov: %f", currentFOV);
   this->projectionMatrix = glm::perspective(
-      currentFOV, (float)window.width / (float)window.height, 0.1f, 100.0f);
+      glm::radians(zoom), (float)window.width / (float)window.height, 0.1f, 100.0f);
 }

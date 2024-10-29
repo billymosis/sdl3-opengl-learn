@@ -1,9 +1,11 @@
 #pragma once
 #include "glm/fwd.hpp"
+#include "glm/glm.hpp"
+#include "material.hpp"
 #include "shape.hpp"
-#include "texture.hpp"
 #include <glm/gtc/quaternion.hpp>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -18,13 +20,17 @@ struct DecomposedTransform {
   glm::vec4 perspective;
 };
 
+class PerspectiveCamera;
+
 class Node : public std::enable_shared_from_this<Node> {
 public:
   std::weak_ptr<Node> parent;
   std::vector<std::shared_ptr<Node>> children;
 
-  std::shared_ptr<Geometry> geometry = nullptr;
-  std::shared_ptr<Texture> texture = nullptr;
+  GLuint matricesUBO;
+
+  std::shared_ptr<Geometry> geometry;
+  std::shared_ptr<Material> material;
 
   glm::mat4 worldTransform;
   glm::mat4 localTransform;
@@ -33,10 +39,13 @@ public:
 
   Node(std::string name);
   Node(std::shared_ptr<Geometry> geometry = nullptr,
-       std::shared_ptr<Texture> texture = nullptr);
+       std::shared_ptr<Material> material = std::make_shared<Material>(
+           "../shaders/model_loading.vert", "../shaders/model_loading.frag"));
 
   virtual ~Node();
+
   void add(std::shared_ptr<Node> node);
+
   void remove();
 
   virtual void updateWorldTransform();
@@ -67,7 +76,9 @@ public:
   // Sets the diry flag for the node so transforms are updated later.
   void markDirty();
 
-  void draw(Shader &shader);
+  void setUBOProgram(GLuint matricesUBO);
+
+  void draw(PerspectiveCamera *camera);
 
 protected:
   // Position of the node in local-space.

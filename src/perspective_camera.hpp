@@ -37,5 +37,5 @@ private:
   // camera options
   float movementSpeed = 1.0f;
   float mouseSensitivity = 0.1f;
-  float zoom = 1.0f;
+  float zoom = 45.0f;
 };

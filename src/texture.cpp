@@ -91,3 +91,17 @@ void Texture::SetActive(Shader &shader, int index) {
   glUniform1i(glGetUniformLocation(shader.ID, "texture_diffuse1"), index);
   glBindTexture(GL_TEXTURE_2D, mTextureID);
 }
+
+void Texture::SetActive(Shader *shader, int index) {
+  glActiveTexture(GL_TEXTURE0 + index);
+  glUniform1i(glGetUniformLocation(shader->ID, "texture_diffuse1"), index);
+  glBindTexture(GL_TEXTURE_2D, mTextureID);
+}
+
+Texture Texture::clone() const {
+  Texture newTexture;
+  // Share the GPU texture handle/ID
+  newTexture.mTextureID = this->mTextureID;
+  // Copy other necessary properties
+  return newTexture;
+}

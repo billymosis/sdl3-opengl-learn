@@ -1,4 +1,8 @@
+#include "SDL3/SDL_log.h"
+#include "glm/ext.hpp"
 #include "glm/fwd.hpp"
+#include "perspective_camera.hpp"
+
 #define GLM_ENABLE_EXPERIMENTAL
 
 #include "node.hpp"
@@ -10,8 +14,9 @@
 
 Node::Node(std::string name) : name(name){};
 
-Node::Node(std::shared_ptr<Geometry> geometry, std::shared_ptr<Texture> texture)
-    : geometry(geometry), texture(texture) {
+Node::Node(std::shared_ptr<Geometry> geometry,
+           std::shared_ptr<Material> material)
+    : geometry(geometry), material(material) {
   if (geometry) {
     this->name = geometry->getName();
   }
@@ -115,17 +120,31 @@ void Node::setScale(glm::vec3 scale) {
   this->scale = scale;
 }
 
-void Node::draw(Shader &shader) {
-  shader.setMat4("model", this->worldTransform);
+void Node::setUBOProgram(GLuint matricesUBO) {
+  this->matricesUBO = matricesUBO;
+}
 
-  if (texture) {
-    this->texture->SetActive(shader, 0);
-  }
+void Node::draw(PerspectiveCamera *camera) {
+  if (!material)
+    return;
+  auto shaderProgram{material->getShader().ID};
+  GLuint matricesBlockIndex = glGetUniformBlockIndex(shaderProgram, "Matrices");
+  glUniformBlockBinding(shaderProgram, matricesBlockIndex, 0);
+  glBindBuffer(GL_UNIFORM_BUFFER, matricesUBO);
+  glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4),
+                  glm::value_ptr(camera->projectionMatrix));
+  glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4),
+                  glm::value_ptr(camera->viewMatrix));
+
+  this->material->getShader().setMat4("model", this->worldTransform);
+  // this->material->setColor(glm::vec4(1.0f,0.0f,0.0f,1.0f));
+
+  material->apply();
   if (geometry) {
     this->geometry->Draw();
   }
   glBindTexture(GL_TEXTURE_2D, 0);
   for (auto node : this->children) {
-    node->draw(shader);
+    node->draw(camera);
   }
 }
