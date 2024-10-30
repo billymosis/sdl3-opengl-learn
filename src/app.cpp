@@ -12,6 +12,7 @@
 
 #include "model.hpp"
 #include "shader.hpp"
+#include <cmath>
 #include <memory>
 
 App::App() {
@@ -37,7 +38,6 @@ App::App() {
   auto materialBlue = baseMaterial->clone();
   materialBlue->setColor(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
-
   auto cubeGeometry = std::make_shared<Cube>();
   auto sphereGeometry = std::make_shared<Sphere>();
 
@@ -48,17 +48,18 @@ App::App() {
   root->add(cam);
 
   auto cube = std::make_shared<Node>(cubeGeometry, materialRed);
+  cube->setPos(glm::vec3(0.0f, 0.0f, 0.0f));
   root->add(cube);
   auto ball = std::make_shared<Node>(sphereGeometry, materialRed);
   ball->setPos(glm::vec3(2.0f, 2.0f, 2.0f));
   cube->add(ball);
 
   auto cube2 = std::make_shared<Node>(cubeGeometry, materialGreen);
-  cube2->setPos(glm::vec3(1.5f, 0.0f, 0.0f));
+  cube2->setPos(glm::vec3(2.0f, 2.0f, 0.0f));
   root->add(cube2);
 
   auto cube3 = std::make_shared<Node>(cubeGeometry, materialBlue);
-  cube3->setPos(glm::vec3(-1.5f, 0.0f, 0.0f));
+  cube3->setPos(glm::vec3(5.0f, 5.0f, 0.0f));
   root->add(cube3);
 
   root->updateWorldTransform();

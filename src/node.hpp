@@ -27,13 +27,15 @@ public:
   std::weak_ptr<Node> parent;
   std::vector<std::shared_ptr<Node>> children;
 
-  GLuint matricesUBO;
+  bool isUpdating = false;
+  GLuint matricesUBO{0};
 
   std::shared_ptr<Geometry> geometry;
-  std::shared_ptr<Material> material;
+  std::shared_ptr<Material> material = std::make_shared<Material>(
+      "../shaders/model_loading.vert", "../shaders/model_loading.frag");
 
-  glm::mat4 worldTransform;
-  glm::mat4 localTransform;
+  glm::mat4 worldTransform{1.0f};
+  glm::mat4 localTransform{1.0f};
 
   std::string name = "BASE_NODE";
 
@@ -82,15 +84,15 @@ public:
 
 protected:
   // Position of the node in local-space.
-  glm::vec3 position;
+  glm::vec3 position{0.0f};
 
   // Rotation of the node in local-space.
-  glm::vec3 rotation;
+  glm::vec3 rotation{0.0f};
 
   // Scale of the node in local-space.
-  glm::vec3 scale;
+  glm::vec3 scale{1.0f};
 
   // Dirty flag used to speed up tree traversal and prevent cyclic loops.
   // This flag will be set when the transform is changed.
-  bool dirty = true;
+  bool dirty{true};
 };

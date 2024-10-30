@@ -8,15 +8,16 @@
 
 class Geometry {
 public:
-  std::vector<Vertex> vertices;
-  std::vector<unsigned int> indices;
-  unsigned int VAO;
+  std::vector<Vertex> vertices = {};
+  std::vector<unsigned int> indices = {};
+  GLuint VAO{0};
   void Draw();
   virtual std::string getName();
   virtual void generateGeometry() {};
   virtual ~Geometry() {};
 
 protected:
-  unsigned int VBO, EBO;
+  GLuint VBO{0};
+  GLuint EBO{0};
   void setupMesh();
 };

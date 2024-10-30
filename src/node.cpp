@@ -12,7 +12,7 @@
 #include <iostream>
 #include <string>
 
-Node::Node(std::string name) : name(name){};
+Node::Node(std::string name) : name(name) {};
 
 Node::Node(std::shared_ptr<Geometry> geometry,
            std::shared_ptr<Material> material)
@@ -36,7 +36,7 @@ void Node::updateWorldTransform() {
     if (parent.get() != nullptr) {
       worldTransform = parent.get()->worldTransform * localTransform;
     } else {
-      worldTransform = glm::mat4(1.0f) * localTransform;
+      worldTransform = localTransform;
     }
 
     dirty = false;
@@ -89,7 +89,14 @@ void Node::remove() {
   }
 }
 
-void Node::markDirty() { dirty = true; }
+void Node::markDirty() {
+  if (!dirty) {
+    dirty = true;
+    for (auto &child : children) {
+      child->markDirty();
+    }
+  }
+}
 
 DecomposedTransform Node::getDecomposedTransform() {
   DecomposedTransform decomposed;
@@ -106,13 +113,15 @@ glm::vec3 Node::getRot() const { return rotation; }
 glm::vec3 Node::getScale() const { return scale; }
 
 void Node::setPos(glm::vec3 position) {
-  dirty = true;
+  markDirty();
   this->position = position;
+  updateLocalTransform();
 }
 
 void Node::setRot(glm::vec3 rotation) {
-  dirty = true;
+  markDirty();
   this->rotation = rotation;
+  updateLocalTransform();
 }
 
 void Node::setScale(glm::vec3 scale) {
