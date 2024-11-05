@@ -1,18 +1,17 @@
-#include "SDL3/SDL_log.h"
-#include "glm/ext.hpp"
-#include "glm/fwd.hpp"
 #include "perspective_camera.hpp"
-
-#define GLM_ENABLE_EXPERIMENTAL
 
 #include "node.hpp"
 #include <algorithm>
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/ext.hpp"
+#include "glm/fwd.hpp"
+#include "glm/gtx/string_cast.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <iostream>
 #include <string>
 
-Node::Node(std::string name) : name(name) {};
+Node::Node(std::string name) : name(name){};
 
 Node::Node(std::shared_ptr<Geometry> geometry,
            std::shared_ptr<Material> material)
@@ -20,49 +19,44 @@ Node::Node(std::shared_ptr<Geometry> geometry,
   if (geometry) {
     this->name = geometry->getName();
   }
-  this->position = glm::vec3(0.0f);
-  this->rotation = glm::vec3(0.0f);
-  this->scale = glm::vec3(1.0f);
-  this->worldTransform = glm::mat4(1.0f);
-  this->localTransform = glm::mat4(1.0f);
 }
 
 Node::~Node() { std::cout << "Removing Node " << name << "\n"; }
 
 void Node::updateWorldTransform() {
   if (dirty) {
-    auto parent = this->parent.lock();
-    this->updateLocalTransform();
-    if (parent.get() != nullptr) {
-      worldTransform = parent.get()->worldTransform * localTransform;
+    updateLocalTransform(); // Recalculate local matrix if dirty
+    if (auto parent = this->parent.lock()) {
+      worldTransform = parent->worldTransform * localTransform;
     } else {
       worldTransform = localTransform;
     }
+    dirty = false; // Clear the dirty flag after updating
+  }
 
-    dirty = false;
-    for (auto node : children) {
-      node.get()->markDirty();
-      node.get()->updateWorldTransform();
-    }
-  } else {
-    for (auto node : children) {
-      node.get()->updateWorldTransform();
-    }
+  // Always traverse to children, whether or not this node was dirty
+  for (auto &child : children) {
+    child->updateWorldTransform();
   }
 }
 
 // TODO: Use quaternions as a substitute to euler angles to save on matrix
 // multiplications (and to learn quaternions).
 void Node::updateLocalTransform() {
-  if (dirty) {
-    auto transform = glm::mat4(1.0f);
-    transform = glm::translate(transform, position);
-    transform = glm::rotate(transform, rotation.y, glm::vec3(0.0, 1.0, 0.0));
-    transform = glm::rotate(transform, rotation.x, glm::vec3(1.0, 0.0, 0.0));
-    transform = glm::rotate(transform, rotation.z, glm::vec3(0.0, 0.0, 1.0));
-    transform = glm::scale(transform, scale);
-    localTransform = transform;
-  }
+  // Create transformation matrices
+  glm::mat4 translateMatrix = glm::translate(glm::mat4(1.0f), position);
+  glm::mat4 rotateMatrixX =
+      glm::rotate(glm::mat4(1.0f), rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
+  glm::mat4 rotateMatrixY =
+      glm::rotate(glm::mat4(1.0f), rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+  glm::mat4 rotateMatrixZ =
+      glm::rotate(glm::mat4(1.0f), rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+  glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), scale);
+
+  // Combine transformations in the correct order: Scale -> Rotate ->
+  // Translate
+  localTransform = translateMatrix * rotateMatrixY * rotateMatrixX *
+                   rotateMatrixZ * scaleMatrix;
 }
 
 void Node::add(std::shared_ptr<Node> node) {
@@ -90,11 +84,9 @@ void Node::remove() {
 }
 
 void Node::markDirty() {
-  if (!dirty) {
-    dirty = true;
-    for (auto &child : children) {
-      child->markDirty();
-    }
+  dirty = true;
+  for (auto &child : children) {
+    child->markDirty();
   }
 }
 
@@ -115,17 +107,15 @@ glm::vec3 Node::getScale() const { return scale; }
 void Node::setPos(glm::vec3 position) {
   markDirty();
   this->position = position;
-  updateLocalTransform();
 }
 
 void Node::setRot(glm::vec3 rotation) {
   markDirty();
   this->rotation = rotation;
-  updateLocalTransform();
 }
 
 void Node::setScale(glm::vec3 scale) {
-  dirty = true;
+  markDirty();
   this->scale = scale;
 }
 
@@ -145,15 +135,25 @@ void Node::draw(PerspectiveCamera *camera) {
   glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4),
                   glm::value_ptr(camera->viewMatrix));
 
-  this->material->getShader().setMat4("model", this->worldTransform);
-  // this->material->setColor(glm::vec4(1.0f,0.0f,0.0f,1.0f));
-
-  material->apply();
+  material->apply(this->worldTransform);
   if (geometry) {
     this->geometry->Draw();
   }
   glBindTexture(GL_TEXTURE_2D, 0);
   for (auto node : this->children) {
     node->draw(camera);
+  }
+}
+void Node::printTransforms(std::string indent) {
+  std::cout << indent << "Node: " << name << std::endl;
+  std::cout << indent << "Position: " << glm::to_string(position) << std::endl;
+  std::cout << indent << "Rotation: " << glm::to_string(rotation) << std::endl;
+  std::cout << indent << "Local Matrix: " << glm::to_string(localTransform)
+            << std::endl;
+  std::cout << indent << "World Matrix: " << glm::to_string(worldTransform)
+            << std::endl;
+
+  for (auto &child : children) {
+    child->printTransforms(indent + "  ");
   }
 }

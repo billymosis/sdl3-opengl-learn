@@ -5,7 +5,6 @@
 #include "shape.hpp"
 #include <glm/gtc/quaternion.hpp>
 #include <memory>
-#include <optional>
 #include <string>
 #include <vector>
 
@@ -81,6 +80,8 @@ public:
   void setUBOProgram(GLuint matricesUBO);
 
   void draw(PerspectiveCamera *camera);
+  void printTransforms(std::string indent = "");
+  bool dirty{true};
 
 protected:
   // Position of the node in local-space.
@@ -91,8 +92,4 @@ protected:
 
   // Scale of the node in local-space.
   glm::vec3 scale{1.0f};
-
-  // Dirty flag used to speed up tree traversal and prevent cyclic loops.
-  // This flag will be set when the transform is changed.
-  bool dirty{true};
 };

@@ -1,5 +1,4 @@
 #include "app.hpp"
-#include "SDL3/SDL_log.h"
 #include "cube.hpp"
 #include "debug.hpp"
 #include "glm/fwd.hpp"
@@ -12,7 +11,6 @@
 
 #include "model.hpp"
 #include "shader.hpp"
-#include <cmath>
 #include <memory>
 
 App::App() {
@@ -48,7 +46,6 @@ App::App() {
   root->add(cam);
 
   auto cube = std::make_shared<Node>(cubeGeometry, materialRed);
-  cube->setPos(glm::vec3(0.0f, 0.0f, 0.0f));
   root->add(cube);
   auto ball = std::make_shared<Node>(sphereGeometry, materialRed);
   ball->setPos(glm::vec3(2.0f, 2.0f, 2.0f));
@@ -79,6 +76,7 @@ App::App() {
   float rotation = 0.0;
   // Main loop
   bool done = false;
+  int frameCount = 0;
   while (!done) {
     Uint32 currentTicks = SDL_GetTicks();
     float deltaTime =
@@ -182,10 +180,11 @@ App::App() {
 
     rotation += glm::radians(180.0f) * deltaTime;
     cube->setRot(glm::vec3(0, rotation, 0));
+    cube->setPos(glm::vec3(glm::sin(currentTicks * 0.001f) * 5.0f, 0.0f, 0.0f));
 
     root->updateWorldTransform();
-    root->draw(cam.get());
 
+    root->draw(cam.get());
     debug.Window1();
 
     debug.End();

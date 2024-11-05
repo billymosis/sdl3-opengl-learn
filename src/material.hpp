@@ -10,7 +10,7 @@ class Material {
 public:
   Material(const char *vertexPath, const char *fragmentPath,
            std::optional<Texture> texture = std::nullopt);
-  void apply();
+  void apply(glm::mat4 worldMatrix);
 
   // Copy constructor - deleted to prevent accidental copies
   Material(const Material &) = delete;
